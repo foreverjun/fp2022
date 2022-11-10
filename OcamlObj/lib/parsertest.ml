@@ -1,8 +1,12 @@
+(** Copyright 2021-2022, Kalashnikov Matvey *)
+
+(** SPDX-License-Identifier: LGPL-3.0-or-later *)
+
 open Ast
 open Parser
 
 let test_parse ~code ~expected =
-  match parse prog code with
+  match parse code with
   | Ok ok ->
     (match List.equal equal_declaration ok expected with
      | true -> true

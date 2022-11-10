@@ -1,3 +1,7 @@
+(** Copyright 2021-2022, Kalashnikov Matvey *)
+
+(** SPDX-License-Identifier: LGPL-3.0-or-later *)
+
 open Angstrom
 open Ast
 open Base
@@ -268,4 +272,4 @@ let getdeclaration a = DLet a
 let decl = getdeclaration <$> empty *> prs_decl prs_expr
 let pprog (l : declaration list) : prog = l
 let prog = sep_by1 (token ";;") decl <* option "" @@ trim (token ";;") >>| pprog
-let parse p s = parse_string ~consume:All p s
+let parse s = parse_string ~consume:All prog s
