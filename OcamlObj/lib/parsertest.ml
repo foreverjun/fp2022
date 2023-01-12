@@ -9,10 +9,10 @@ let test_parse ~code ~expected =
   match parse code with
   | Ok ok ->
     (match List.equal equal_declaration ok expected with
-     | true -> true
-     | false ->
-       Format.printf "Expected: %a\nActual: %a\n" pp_prog expected pp_prog ok;
-       false)
+    | true -> true
+    | false ->
+      Format.printf "Expected: %a\nActual: %a\n" pp_prog expected pp_prog ok;
+      false)
   | Error err ->
     Format.printf "Error: %s\n" err;
     false
