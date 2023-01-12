@@ -192,16 +192,16 @@ module Interpret (M : Fail_monad) = struct
            | ObjV env ->
              let* lookup = find_in_ctx m env in
              (match lookup with
-             | MethV inner -> return inner
-             | _ -> fail (Not_bound (String.concat "#" names)))
+              | MethV inner -> return inner
+              | _ -> fail (Not_bound (String.concat "#" names)))
            | _ -> fail (Not_bound (String.concat "#" names)))
         | h :: tl ->
           (match value with
            | ObjV env ->
              let* lookup = find_in_ctx h env in
              (match lookup with
-             | MethV (ObjV inner) -> helper tl (ObjV inner)
-             | _ -> fail (Not_bound (String.concat "#" names)))
+              | MethV (ObjV inner) -> helper tl (ObjV inner)
+              | _ -> fail (Not_bound (String.concat "#" names)))
            | _ -> fail (Not_bound (String.concat "#" names)))
       in
       helper names find_obj
