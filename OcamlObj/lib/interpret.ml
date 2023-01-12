@@ -151,15 +151,15 @@ module Interpret (M : Fail_monad) = struct
            (fun (p, body) -> Option.map (fun e -> e, body) (match_pat (p, value)))
            cases
        with
-      | Some (case, body) ->
-        case
-        >>= fun case ->
-        eval (List.fold_left (fun ctx (name, v) -> add_to_ctx name v ctx) ctx case) body
-      | None -> fail Match_non_exhaustive)
+       | Some (case, body) ->
+         case
+         >>= fun case ->
+         eval (List.fold_left (fun ctx (name, v) -> add_to_ctx name v ctx) ctx case) body
+       | None -> fail Match_non_exhaustive)
     | EObj obj ->
       List.fold_left
         (fun ctx obj_expr ->
-          let* ctx in
+          let* ctx = ctx in
           match obj_expr with
           | OMeth (pat, expr) ->
             let* value = eval ctx expr in
@@ -189,20 +189,20 @@ module Interpret (M : Fail_monad) = struct
         | [] -> fail (Not_bound (String.concat "#" names))
         | [ m ] ->
           (match value with
-          | ObjV env ->
-            let* lookup = find_in_ctx m env in
-            (match lookup with
-            | MethV inner -> return inner
-            | _ -> fail (Not_bound (String.concat "#" names)))
-          | _ -> fail (Not_bound (String.concat "#" names)))
+           | ObjV env ->
+             let* lookup = find_in_ctx m env in
+             (match lookup with
+             | MethV inner -> return inner
+             | _ -> fail (Not_bound (String.concat "#" names)))
+           | _ -> fail (Not_bound (String.concat "#" names)))
         | h :: tl ->
           (match value with
-          | ObjV env ->
-            let* lookup = find_in_ctx h env in
-            (match lookup with
-            | MethV (ObjV inner) -> helper tl (ObjV inner)
-            | _ -> fail (Not_bound (String.concat "#" names)))
-          | _ -> fail (Not_bound (String.concat "#" names)))
+           | ObjV env ->
+             let* lookup = find_in_ctx h env in
+             (match lookup with
+             | MethV (ObjV inner) -> helper tl (ObjV inner)
+             | _ -> fail (Not_bound (String.concat "#" names)))
+           | _ -> fail (Not_bound (String.concat "#" names)))
       in
       helper names find_obj
     | ELet (bindings, expr1) ->
