@@ -1,4 +1,4 @@
-  (executable
+(executable
  (name interprettest)
  (modules interprettest)
  (public_name interprettest)

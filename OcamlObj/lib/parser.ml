@@ -115,7 +115,7 @@ let ematch expr cases = EMatch (expr, cases)
 let eobj exprl = EObj exprl
 let ometh pattern expr = OMeth (pattern, expr)
 let oval pattern expr = OVal (pattern, expr)
-let ecallmeth (names) = ECallM (names)
+let ecallmeth names = ECallM names
 let eapp fn arg = EApp (fn, arg)
 let pvar name = PVar name
 let pconst c = PConst c
@@ -206,9 +206,7 @@ let prs_if prs_expr =
 
 let prs_match prs_expr =
   let ptrn =
-    fix
-    @@ fun pttrn ->
-    choice [ pconst; pvar; token "(" *> pttrn <* token ")" ]
+    fix @@ fun pttrn -> choice [ pconst; pvar; token "(" *> pttrn <* token ")" ]
   in
   let prs_case =
     lift2 (fun pattern expr -> pattern, expr) (token "|" *> ptrn <* token "->") prs_expr
@@ -230,19 +228,16 @@ let prs_obj prs_expr =
 
 let prs_call_meth =
   let prs_rest = many (token "#" *> name) in
-  lift3 (fun name1 name2 names -> ecallmeth (name1 :: name2 :: names)) (name <* token "#") name prs_rest
+  lift3
+    (fun name1 name2 names -> ecallmeth (name1 :: name2 :: names))
+    (name <* token "#")
+    name
+    prs_rest
 ;;
 
 let prs_expr =
   fix (fun pexp ->
-    let term =
-      choice
-        [ parens pexp
-        ; econst <$> uconst
-        ; prs_call_meth
-        ; evar <$> name
-        ]
-    in
+    let term = choice [ parens pexp; econst <$> uconst; prs_call_meth; evar <$> name ] in
     let term =
       lift2
         (fun expr l -> List.fold_left ~f:eapp ~init:expr l)
