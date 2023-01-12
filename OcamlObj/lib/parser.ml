@@ -109,14 +109,13 @@ let ebinopr bin_operator expr1 expr2 = EBinop (bin_operator, expr1, expr2)
 let evar name = EVar name
 let eif expr1 expr2 expr3 = EIf (expr1, expr2, expr3)
 let elet binding expr = ELet (binding, expr)
-let efunction cases = EFun (PVar "match", EMatch (EVar "match", cases))
 let efun name expr = EFun (PVar name, expr)
 let efun args rhs = List.fold_right args ~f:efun ~init:rhs
 let ematch expr cases = EMatch (expr, cases)
 let eobj exprl = EObj exprl
 let ometh pattern expr = OMeth (pattern, expr)
 let oval pattern expr = OVal (pattern, expr)
-let ecallmeth (name1, name2) = ECallM (name1, name2)
+let ecallmeth (names) = ECallM (names)
 let eapp fn arg = EApp (fn, arg)
 let pvar name = PVar name
 let pconst c = PConst c
@@ -210,7 +209,6 @@ let prs_match prs_expr =
     fix
     @@ fun pttrn ->
     choice [ pconst; pvar; token "(" *> pttrn <* token ")" ]
-    <|> token "(" *> token ")" *> return PUnit
   in
   let prs_case =
     lift2 (fun pattern expr -> pattern, expr) (token "|" *> ptrn <* token "->") prs_expr
@@ -231,15 +229,15 @@ let prs_obj prs_expr =
 ;;
 
 let prs_call_meth =
-  lift2 (fun name1 name2 -> ecallmeth (name1, name2)) (name <* token "#") name
+  let prs_rest = many (token "#" *> name) in
+  lift3 (fun name1 name2 names -> ecallmeth (name1 :: name2 :: names)) (name <* token "#") name prs_rest
 ;;
 
 let prs_expr =
   fix (fun pexp ->
     let term =
       choice
-        [ token "()" *> return EUnit
-        ; parens pexp
+        [ parens pexp
         ; econst <$> uconst
         ; prs_call_meth
         ; evar <$> name

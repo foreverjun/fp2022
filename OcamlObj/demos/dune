@@ -1,0 +1,8 @@
+  (executable
+ (name interprettest)
+ (modules interprettest)
+ (public_name interprettest)
+ (libraries OcamlObj.lib stdio))
+
+(cram
+ (deps ./interprettest.exe))

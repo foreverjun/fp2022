@@ -26,7 +26,6 @@ type binop =
 type name = string [@@deriving eq, show { with_path = false }]
 
 type expr =
-  | EUnit
   | EConst of const
   | EBinop of binop * expr * expr
   | EVar of name
@@ -35,7 +34,7 @@ type expr =
   | EFun of pattern * expr
   | EApp of expr * expr
   | EMatch of expr * (pattern * expr) list
-  | ECallM of name * name
+  | ECallM of name list
   | EObj of obj
 [@@deriving eq, show { with_path = false }]
 
@@ -47,7 +46,6 @@ and objexpr =
 and obj = objexpr list [@@deriving eq, show { with_path = false }]
 
 and pattern =
-  | PUnit
   | PVar of name
   | PConst of const
 [@@deriving eq, show { with_path = false }]

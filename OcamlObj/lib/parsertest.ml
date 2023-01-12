@@ -9,10 +9,10 @@ let test_parse ~code ~expected =
   match parse code with
   | Ok ok ->
     (match List.equal equal_declaration ok expected with
-     | true -> true
-     | false ->
-       Format.printf "Expected: %a\nActual: %a\n" pp_prog expected pp_prog ok;
-       false)
+    | true -> true
+    | false ->
+      Format.printf "Expected: %a\nActual: %a\n" pp_prog expected pp_prog ok;
+      false)
   | Error err ->
     Format.printf "Error: %s\n" err;
     false
@@ -54,7 +54,7 @@ let test = s#minus;;
                         , EFun (PVar "a", EBinop (Mul, EVar "a", EConst (CInt 2))) )
                       , EVar "helper" ) )
               ] )
-      ; DLet (false, PVar "test", ECallM ("s", "minus"))
+      ; DLet (false, PVar "test", ECallM [ "s"; "minus" ])
       ]
 ;;
 
@@ -100,7 +100,8 @@ let pairsum = mypair#get_first + mypair#get_second
       ; DLet
           ( false
           , PVar "pairsum"
-          , EBinop (Add, ECallM ("mypair", "get_first"), ECallM ("mypair", "get_second"))
+          , EBinop
+              (Add, ECallM [ "mypair"; "get_first" ], ECallM [ "mypair"; "get_second" ])
           )
       ]
 ;;
@@ -253,5 +254,54 @@ let%test _ =
                     ; PConst (CString "then"), EConst (CInt 8)
                     ; PVar "_", EConst (CInt 0)
                     ] ) ) )
+      ]
+;;
+
+let%test _ =
+  test_parse
+    ~code:
+      {|
+      let inner_objects = object 
+  val i = 10
+  method g = object
+    val j = 20
+    method h = i + j
+  end
+  method f = object
+    val k = 30
+    method g = object
+      val l = 40
+      method h = k + l
+    end
+  end
+end;;
+let a = inner_objects#f#g#h
+    
+    |}
+    ~expected:
+      [ DLet
+          ( false
+          , PVar "inner_objects"
+          , EObj
+              [ OVal (PVar "i", EConst (CInt 10))
+              ; OMeth
+                  ( PVar "g"
+                  , EObj
+                      [ OVal (PVar "j", EConst (CInt 20))
+                      ; OMeth (PVar "h", EBinop (Add, EVar "i", EVar "j"))
+                      ] )
+              ; OMeth
+                  ( PVar "f"
+                  , EObj
+                      [ OVal (PVar "k", EConst (CInt 30))
+                      ; OMeth
+                          ( PVar "g"
+                          , EObj
+                              [ OVal (PVar "l", EConst (CInt 40))
+                              ; OMeth (PVar "h", EBinop (Add, EVar "k", EVar "l"))
+                              ] )
+                      ] )
+              ] )
+      ; DLet (false, PVar "a", ECallM [ "inner_objects"; "f"; "g"; "h" ])
       ]
 ;;
