@@ -1,0 +1,33 @@
+(lang dune 3.4)
+
+(name asm)
+
+(generate_opam_files true)
+
+(source
+ (github tozarin/fp2022))
+
+(authors "Startsev Matvey")
+
+(maintainers "https://github.com/Tozarin")
+
+(license LGPL-3.0-only)
+
+(documentation https://kakadu.github.io/fp2022/docs/asm)
+
+(package
+ (name asm)
+ (synopsis "Assembler interpret")
+ (description "Assembler interpret. Support some SIMD operations")
+ (depends
+  ocaml
+  dune
+  angstrom
+  (ppx_inline_test :with-test)
+  qcheck-core
+  ppx_expect
+  ppx_show
+  ppx_deriving
+  (odoc :with-doc)
+  (ocamlformat :build)
+  base))

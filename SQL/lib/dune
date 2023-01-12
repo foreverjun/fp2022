@@ -1,0 +1,8 @@
+(library
+ (name sql_lib)
+ (public_name SQL.Lib)
+ (modules Ast Interpret Parser Meta Pprintnode utils Tests Relation)
+ (libraries base angstrom csv yojson ppx_deriving core)
+ (preprocess
+  (pps ppx_expect ppx_deriving.show ppx_yojson_conv ppx_variants_conv))
+ (inline_tests))

@@ -46,6 +46,7 @@ and objexpr =
 and obj = objexpr list [@@deriving eq, show { with_path = false }]
 
 and pattern =
+
   | PVar of name
   | PConst of const
 [@@deriving eq, show { with_path = false }]
