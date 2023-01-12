@@ -1,0 +1,28 @@
+(env
+ (dev
+  (flags
+   (:standard -warn-error -A -w -3-9-32-34-58)))
+ (release
+  (flags
+   (:standard -warn-error -A -w -58))))
+
+(executable
+ (name INTERPRET)
+ (public_name INTERPRET)
+ (modules INTERPRET)
+ (libraries Ruby.Lib stdio))
+
+(cram
+ (deps
+  ./INTERPRET.exe
+  %{bin:INTERPRET}
+  examples/arith_op.rb
+  examples/bool_op.rb
+  examples/builtin_methods.rb
+  examples/builtin_types.rb
+  examples/classes.rb
+  examples/combinators.rb
+  examples/conditional.rb
+  examples/functions.rb
+  examples/lambda.rb
+  examples/while_loop.rb))

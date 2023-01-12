@@ -1,0 +1,19 @@
+(executable
+ (name demoQueryGen)
+ (modules demoQueryGen)
+ (public_name demoQueryGen)
+ (libraries sql_lib))
+
+(executable
+ (name demoParse)
+ (modules demoParse)
+ (public_name demoParse)
+ (libraries sql_lib stdio))
+
+(cram
+ (deps ./demoQueryGen.exe ./demoParse.exe ../REPL.exe))
+
+(cram
+ (applies_to bigInterpret)
+ (enabled_if
+  (= %{profile} mysql)))

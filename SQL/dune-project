@@ -1,0 +1,38 @@
+(lang dune 2.8)
+
+(generate_opam_files true)
+
+(cram enable)
+
+(license LGPL-3.0-or-later)
+
+(authors "Michael Polyntsov")
+
+(maintainers "Michael Polyntsov")
+
+(bug_reports "github.com/polynstov/fp2022")
+
+(homepage "github.com/polynstov/fp2022")
+
+(package
+ (name SQL)
+ (synopsis "An interpreter for a mini SQL")
+ (description
+  "Interpreter of a subset of SQL language (mainly joins and filtration), provides a REPL")
+ (version 0.1)
+ (depends
+  dune
+  angstrom
+  (ppx_inline_test :with-test)
+  qcheck-core
+  ppx_expect
+  ppx_deriving
+  (odoc :with-doc)
+  (ocamlformat :build)
+  base
+  csv
+  ppx_yojson_conv
+  ppx_variants_conv
+  core
+  ; After adding dependencies to 'dune' files and the same dependecies here too
+  ))
