@@ -41,7 +41,7 @@ let test = s#minus;;
     ~expected:
       [ DLet
           ( false
-          ,"s"
+          , "s"
           , EObj
               [ OVal ("v", EConst (CInt 10))
               ; OMeth ("minus", EBinop (Sub, EVar "v", EConst (CInt 1)))
@@ -93,10 +93,7 @@ let pairsum = mypair#get_first + mypair#get_second
                       ; OMeth ("get_first", EVar "first")
                       ; OMeth ("get_second", EVar "second")
                       ] ) ) )
-      ; DLet
-          ( false
-          , "mypair"
-          , EApp (EApp (EVar "pair", EConst (CInt 1)), EConst (CInt 2)) )
+      ; DLet (false, "mypair", EApp (EApp (EVar "pair", EConst (CInt 1)), EConst (CInt 2)))
       ; DLet
           ( false
           , "pairsum"
@@ -163,8 +160,7 @@ let%test _ =
                             , EFun ("x", EBinop (Mul, EVar "x", EConst (CInt 3))) )
                           , EVar "d" ) )
                     , EVar "c" ) )
-              , EFun ("x", EApp (EVar "b", EBinop (Add, EVar "x", EConst (CInt 2))))
-              ) )
+              , EFun ("x", EApp (EVar "b", EBinop (Add, EVar "x", EConst (CInt 2)))) ) )
       ]
 ;;
 
@@ -211,9 +207,8 @@ let%test _ =
           ( false
           , "max"
           , EFun
-              ( "a"
-              , EFun ("b", EIf (EBinop (Gre, EVar "a", EVar "b"), EVar "a", EVar "b"))
-              ) )
+              ("a", EFun ("b", EIf (EBinop (Gre, EVar "a", EVar "b"), EVar "a", EVar "b")))
+          )
       ]
 ;;
 
