@@ -28,10 +28,9 @@ type value =
   | IntV of int
   | StringV of string
   | BoolV of bool
-  | FunV of pattern * expr * ctx Lazy.t
+  | FunV of name * expr * ctx Lazy.t
   | ObjV of ctx
-  | ValV of value
-  | MethV of value
+  | MethV of value (** wrapper, which is needed so that you can only call methods from the outside *)
 [@@deriving show { with_path = false }]
 
 and error =
@@ -39,15 +38,14 @@ and error =
   | Wrong_type of expr
   | Match_non_exhaustive
   | Not_bound of name
-  | Undefined_parser_error of string
   | Case_wrong_type of pattern * value
   | Div_0
-[@@deriving show { with_path = false }]
+[@@deriving show]
 
 and ctx = value ContextMap.t [@@deriving show { with_path = false }]
 
 let clear_value = function
-  | ValV inner | MethV inner -> inner
+  | MethV inner -> inner
   | other -> other
 ;;
 
@@ -60,7 +58,7 @@ let pp_value (k, v) =
     | BoolV b -> printf "%b" b
     | FunV (_, _, _) -> printf "<fun>"
     | ObjV _ -> printf "<object>"
-    | ValV _ | MethV _ -> printf "ValV/MethV printing error"
+    | MethV _ -> printf "MethV printing error"
   in
   printf "val %s = %a\n%!" k printer v
 ;;
@@ -69,6 +67,13 @@ module Interpret (M : Fail_monad) = struct
   open M
 
   let find_in_ctx name ctx =
+    match ContextMap.find name ctx with
+    | exception Not_found -> fail @@ Not_bound name
+    | MethV (_) -> fail @@ Not_bound name
+    | value -> return value
+  ;;
+
+  let find_meth_in_ctx name ctx =
     match ContextMap.find name ctx with
     | exception Not_found -> fail @@ Not_bound name
     | value -> return value
@@ -129,17 +134,12 @@ module Interpret (M : Fail_monad) = struct
       | BoolV true -> eval ctx expr2
       | BoolV false -> eval ctx expr3
       | _ -> fail (Wrong_type expr1))
-    | EFun (pat, expr) -> return (FunV (pat, expr, lazy ctx))
+    | EFun (name, expr) -> return (FunV (name, expr, lazy ctx))
     | EApp (l_expr, r_expr) ->
       eval ctx l_expr
       >>= (function
-      | FunV (pat, body, fun_ctx) ->
+      | FunV (name, body, fun_ctx) ->
         let* r_val = eval ctx r_expr in
-        let* name =
-          match pat with
-          | PVar name -> return name
-          | _ -> fail (Undefined_parser_error "Parser error: Incorrect name value")
-        in
         let new_ctx = add_to_ctx name r_val (Lazy.force fun_ctx) in
         eval new_ctx body
       | _ -> fail (Wrong_type l_expr))
@@ -161,22 +161,13 @@ module Interpret (M : Fail_monad) = struct
         (fun ctx obj_expr ->
           let* ctx = ctx in
           match obj_expr with
-          | OMeth (pat, expr) ->
+          | OMeth (name, expr) ->
             let* value = eval ctx expr in
-            let* name =
-              match pat with
-              | PVar name -> return name
-              | _ -> fail (Undefined_parser_error "Parser error: Incorrect name value")
-            in
             return (add_to_ctx name (MethV value) ctx)
-          | OVal (pat, expr) ->
-            let* value = eval ctx expr in
-            let* name =
-              match pat with
-              | PVar name -> return name
-              | _ -> fail (Undefined_parser_error "Parser error: Incorrect name value")
+          | OVal (name, expr) ->
+            let* value = eval ctx expr
             in
-            return (add_to_ctx name (ValV value) ctx))
+            return (add_to_ctx name value ctx))
         (return ctx)
         obj
       >>= fun obj_value -> return (ObjV obj_value)
@@ -190,7 +181,7 @@ module Interpret (M : Fail_monad) = struct
         | [ m ] ->
           (match value with
            | ObjV env ->
-             let* lookup = find_in_ctx m env in
+             let* lookup = find_meth_in_ctx m env in
              (match lookup with
               | MethV inner -> return inner
               | _ -> fail (Not_bound (String.concat "#" names)))
@@ -198,7 +189,7 @@ module Interpret (M : Fail_monad) = struct
         | h :: tl ->
           (match value with
            | ObjV env ->
-             let* lookup = find_in_ctx h env in
+             let* lookup = find_meth_in_ctx h env in
              (match lookup with
               | MethV (ObjV inner) -> helper tl (ObjV inner)
               | _ -> fail (Not_bound (String.concat "#" names)))
@@ -209,14 +200,9 @@ module Interpret (M : Fail_monad) = struct
       let* _, st = eval_binding ctx bindings in
       return st >>= fun s -> eval s expr1
 
-  and eval_binding ctx (is_rec, pat, expr) =
+  and eval_binding ctx (is_rec, name, expr) =
     if is_rec
     then
-      let* name =
-        match pat with
-        | PVar name -> return name
-        | _ -> fail (Undefined_parser_error "Parser error: Incorrect name value")
-      in
       let* buffer_fun =
         match expr with
         | EFun (pat, body) ->
@@ -229,11 +215,6 @@ module Interpret (M : Fail_monad) = struct
       return ((name, value), add_to_ctx name value new_ctx)
     else
       let* value = eval ctx expr in
-      let* name =
-        match pat with
-        | PVar name -> return name
-        | _ -> fail (Undefined_parser_error "Parser error: Incorrect name value")
-      in
       let new_ctx = add_to_ctx name value ctx in
       return ((name, value), new_ctx)
   ;;

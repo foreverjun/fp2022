@@ -41,20 +41,20 @@ let test = s#minus;;
     ~expected:
       [ DLet
           ( false
-          , PVar "s"
+          ,"s"
           , EObj
-              [ OVal (PVar "v", EConst (CInt 10))
-              ; OMeth (PVar "minus", EBinop (Sub, EVar "v", EConst (CInt 1)))
-              ; OMeth (PVar "plus", EBinop (Add, EVar "v", EConst (CInt 1)))
+              [ OVal ("v", EConst (CInt 10))
+              ; OMeth ("minus", EBinop (Sub, EVar "v", EConst (CInt 1)))
+              ; OMeth ("plus", EBinop (Add, EVar "v", EConst (CInt 1)))
               ; OMeth
-                  ( PVar "times"
+                  ( "times"
                   , ELet
                       ( ( false
-                        , PVar "helper"
-                        , EFun (PVar "a", EBinop (Mul, EVar "a", EConst (CInt 2))) )
+                        , "helper"
+                        , EFun ("a", EBinop (Mul, EVar "a", EConst (CInt 2))) )
                       , EVar "helper" ) )
               ] )
-      ; DLet (false, PVar "test", ECallM [ "s"; "minus" ])
+      ; DLet (false, "test", ECallM [ "s"; "minus" ])
       ]
 ;;
 
@@ -82,24 +82,24 @@ let pairsum = mypair#get_first + mypair#get_second
     ~expected:
       [ DLet
           ( false
-          , PVar "pair"
+          , "pair"
           , EFun
-              ( PVar "first"
+              ( "first"
               , EFun
-                  ( PVar "second"
+                  ( "second"
                   , EObj
-                      [ OVal (PVar "first", EVar "first")
-                      ; OVal (PVar "second", EVar "second")
-                      ; OMeth (PVar "get_first", EVar "first")
-                      ; OMeth (PVar "get_second", EVar "second")
+                      [ OVal ("first", EVar "first")
+                      ; OVal ("second", EVar "second")
+                      ; OMeth ("get_first", EVar "first")
+                      ; OMeth ("get_second", EVar "second")
                       ] ) ) )
       ; DLet
           ( false
-          , PVar "mypair"
+          , "mypair"
           , EApp (EApp (EVar "pair", EConst (CInt 1)), EConst (CInt 2)) )
       ; DLet
           ( false
-          , PVar "pairsum"
+          , "pairsum"
           , EBinop
               (Add, ECallM [ "mypair"; "get_first" ], ECallM [ "mypair"; "get_second" ])
           )
@@ -116,7 +116,7 @@ let%test _ =
     ~expected:
       [ DLet
           ( false
-          , PVar "_"
+          , "_"
           , EBinop
               ( Div
               , EBinop
@@ -150,20 +150,20 @@ let%test _ =
     ~expected:
       [ DLet
           ( false
-          , PVar "a"
+          , "a"
           , ELet
               ( ( false
-                , PVar "b"
+                , "b"
                 , ELet
                     ( ( false
-                      , PVar "c"
+                      , "c"
                       , ELet
                           ( ( false
-                            , PVar "d"
-                            , EFun (PVar "x", EBinop (Mul, EVar "x", EConst (CInt 3))) )
+                            , "d"
+                            , EFun ("x", EBinop (Mul, EVar "x", EConst (CInt 3))) )
                           , EVar "d" ) )
                     , EVar "c" ) )
-              , EFun (PVar "x", EApp (EVar "b", EBinop (Add, EVar "x", EConst (CInt 2))))
+              , EFun ("x", EApp (EVar "b", EBinop (Add, EVar "x", EConst (CInt 2))))
               ) )
       ]
 ;;
@@ -183,9 +183,9 @@ let%test _ =
     ~expected:
       [ DLet
           ( true
-          , PVar "factorial"
+          , "factorial"
           , EFun
-              ( PVar "n"
+              ( "n"
               , EIf
                   ( EBinop (Leq, EVar "n", EConst (CInt 1))
                   , EConst (CInt 1)
@@ -209,10 +209,10 @@ let%test _ =
     ~expected:
       [ DLet
           ( false
-          , PVar "max"
+          , "max"
           , EFun
-              ( PVar "a"
-              , EFun (PVar "b", EIf (EBinop (Gre, EVar "a", EVar "b"), EVar "a", EVar "b"))
+              ( "a"
+              , EFun ("b", EIf (EBinop (Gre, EVar "a", EVar "b"), EVar "a", EVar "b"))
               ) )
       ]
 ;;
@@ -239,9 +239,9 @@ let%test _ =
     ~expected:
       [ DLet
           ( false
-          , PVar "keyw"
+          , "keyw"
           , EFun
-              ( PVar "token"
+              ( "token"
               , EMatch
                   ( EVar "token"
                   , [ PConst (CString "let"), EConst (CInt 1)
@@ -281,27 +281,27 @@ let a = inner_objects#f#g#h
     ~expected:
       [ DLet
           ( false
-          , PVar "inner_objects"
+          , "inner_objects"
           , EObj
-              [ OVal (PVar "i", EConst (CInt 10))
+              [ OVal ("i", EConst (CInt 10))
               ; OMeth
-                  ( PVar "g"
+                  ( "g"
                   , EObj
-                      [ OVal (PVar "j", EConst (CInt 20))
-                      ; OMeth (PVar "h", EBinop (Add, EVar "i", EVar "j"))
+                      [ OVal ("j", EConst (CInt 20))
+                      ; OMeth ("h", EBinop (Add, EVar "i", EVar "j"))
                       ] )
               ; OMeth
-                  ( PVar "f"
+                  ( "f"
                   , EObj
-                      [ OVal (PVar "k", EConst (CInt 30))
+                      [ OVal ("k", EConst (CInt 30))
                       ; OMeth
-                          ( PVar "g"
+                          ( "g"
                           , EObj
-                              [ OVal (PVar "l", EConst (CInt 40))
-                              ; OMeth (PVar "h", EBinop (Add, EVar "k", EVar "l"))
+                              [ OVal ("l", EConst (CInt 40))
+                              ; OMeth ("h", EBinop (Add, EVar "k", EVar "l"))
                               ] )
                       ] )
               ] )
-      ; DLet (false, PVar "a", ECallM [ "inner_objects"; "f"; "g"; "h" ])
+      ; DLet (false, "a", ECallM [ "inner_objects"; "f"; "g"; "h" ])
       ]
 ;;

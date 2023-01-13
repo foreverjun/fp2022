@@ -109,7 +109,7 @@ let ebinopr bin_operator expr1 expr2 = EBinop (bin_operator, expr1, expr2)
 let evar name = EVar name
 let eif expr1 expr2 expr3 = EIf (expr1, expr2, expr3)
 let elet binding expr = ELet (binding, expr)
-let efun name expr = EFun (PVar name, expr)
+let efun name expr = EFun (name, expr)
 let efun args rhs = List.fold_right args ~f:efun ~init:rhs
 let ematch expr cases = EMatch (expr, cases)
 let eobj exprl = EObj exprl
@@ -188,9 +188,9 @@ let pconst = const >>| pconst
 let prs_decl prs_expr =
   trim
   @@ lift3
-       (fun is_rec pvar expr -> is_rec, pvar, expr)
+       (fun is_rec name expr -> is_rec, name, expr)
        (token "let" *> option false (token "rec" >>| fun _ -> true))
-       (empty1 *> pvar)
+       (empty1 *> name)
        (lift2 efun (empty *> many name <* token "=") prs_expr)
 ;;
 
@@ -219,10 +219,10 @@ let prs_obj prs_expr =
     trim
     @@ lift2
          ometh
-         (token "method" *> pvar)
+         (token "method" *> name)
          (lift2 efun (empty *> many name <* token "=") prs_expr)
   in
-  let oval = trim @@ lift2 oval (token "val" *> pvar) (token "=" *> prs_expr) in
+  let oval = trim @@ lift2 oval (token "val" *> name) (token "=" *> prs_expr) in
   token "object" *> many (choice [ oval; omethod ]) <* token "end" >>| eobj
 ;;
 

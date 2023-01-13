@@ -3,14 +3,14 @@
 (** SPDX-License-Identifier: LGPL-3.0-or-later *)
 
   $ ./interprettest.exe <<-EOF
-  >  let rec factorial n = 
-  >   if n <= 1 then
-  >   1
-  >   else
-  >   factorial (n-1) * n;;
-  >  let sum_of_first_three = factorial 5 ;;
+  >  let rec fix f x = f (fix f) x
+  >  ;;
+  >  let factorial x n = if n <= 1 then n else x (n - 1) * n
+  >  ;;
+  >  let f = fix factorial 5 ;;
+  val fix = <fun>
   val factorial = <fun>
-  val sum_of_first_three = 120
+  val f = 120
   =-------------------------------------------=
 
   $ ./interprettest.exe <<-EOF 
