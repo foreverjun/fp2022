@@ -30,7 +30,8 @@ type value =
   | BoolV of bool
   | FunV of name * expr * ctx Lazy.t
   | ObjV of ctx
-  | MethV of value (** wrapper, which is needed so that you can only call methods from the outside *)
+  | MethV of value
+      (** wrapper, which is needed so that you can only call methods from the outside *)
 [@@deriving show { with_path = false }]
 
 and error =
@@ -69,7 +70,7 @@ module Interpret (M : Fail_monad) = struct
   let find_in_ctx name ctx =
     match ContextMap.find name ctx with
     | exception Not_found -> fail @@ Not_bound name
-    | MethV (_) -> fail @@ Not_bound name
+    | MethV _ -> fail @@ Not_bound name
     | value -> return value
   ;;
 
@@ -165,8 +166,7 @@ module Interpret (M : Fail_monad) = struct
             let* value = eval ctx expr in
             return (add_to_ctx name (MethV value) ctx)
           | OVal (name, expr) ->
-            let* value = eval ctx expr
-            in
+            let* value = eval ctx expr in
             return (add_to_ctx name value ctx))
         (return ctx)
         obj

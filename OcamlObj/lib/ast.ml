@@ -33,8 +33,10 @@ type expr =
   | ELet of decl * expr (** let a = 5 in a + 5 *)
   | EFun of name * expr (** fun a b c -> a + b * c *)
   | EApp of expr * expr (** mod 5 3*)
-  | EMatch of expr * (pattern * expr) list (** match a with | true -> "true" | false -> false*)
-  | ECallM of name list (** test_obj#another_obj#some_method turns into [test_obj; another_obj; some_method]*)
+  | EMatch of expr * (pattern * expr) list
+      (** match a with | true -> "true" | false -> false*)
+  | ECallM of name list
+      (** test_obj#another_obj#some_method turns into [test_obj; another_obj; some_method]*)
   | EObj of obj (** object method a = 1 method b = 2 end*)
 [@@deriving eq, show { with_path = false }]
 
