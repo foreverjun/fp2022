@@ -172,11 +172,10 @@ module Interpret (M : Fail_monad) = struct
         obj
       >>= fun obj_value -> return (ObjV obj_value)
     | ECallM (expr, name) ->
-        eval ctx expr >>=
-        (function 
-        | ObjV ctx -> find_meth_in_ctx name ctx
-        | other -> return other
-        )
+       eval ctx expr
+       >>= (function
+       | ObjV ctx -> find_meth_in_ctx name ctx
+       | other -> return other)
     | ELet (bindings, expr1) ->
       let* _, st = eval_binding ctx bindings in
       return st >>= fun s -> eval s expr1
