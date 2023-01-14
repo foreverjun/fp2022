@@ -109,3 +109,17 @@
   val a = <fun>
   val t = 21
   =-------------------------------------------=
+
+  $ ./interprettest.exe <<-EOF 
+  >   let new_triplet one two three = object
+  >      method get_one = one   
+  >      method get_two = two
+  >      method get_three = three
+  >      method get_sum = get_one + get_two + get_three
+  >   end ;;
+  >   let triplet = new_triplet 1 2 3 ;;
+  >   let sum = triplet#get_sum ;;
+  val new_triplet = <fun>
+  val triplet = <object>
+  val sum = 6
+  =-------------------------------------------=

@@ -54,7 +54,7 @@ let test = s#minus;;
                         , EFun ("a", EBinop (Mul, EVar "a", EConst (CInt 2))) )
                       , EVar "helper" ) )
               ] )
-      ; DLet (false, "test", ECallM [ "s"; "minus" ])
+      ; DLet (false, "test", ECallM (EVar "s", "minus"))
       ]
 ;;
 
@@ -98,8 +98,9 @@ let pairsum = mypair#get_first + mypair#get_second
           ( false
           , "pairsum"
           , EBinop
-              (Add, ECallM [ "mypair"; "get_first" ], ECallM [ "mypair"; "get_second" ])
-          )
+              ( Add
+              , ECallM (EVar "mypair", "get_first")
+              , ECallM (EVar "mypair", "get_second") ) )
       ]
 ;;
 
@@ -297,6 +298,6 @@ let a = inner_objects#f#g#h
                               ] )
                       ] )
               ] )
-      ; DLet (false, "a", ECallM [ "inner_objects"; "f"; "g"; "h" ])
+      ; DLet (false, "a", ECallM (ECallM (ECallM (EVar "inner_objects", "f"), "g"), "h"))
       ]
 ;;

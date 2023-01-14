@@ -115,7 +115,7 @@ let ematch expr cases = EMatch (expr, cases)
 let eobj exprl = EObj exprl
 let ometh pattern expr = OMeth (pattern, expr)
 let oval pattern expr = OVal (pattern, expr)
-let ecallmeth names = ECallM names
+let ecallmeth expr name = ECallM (expr, name)
 let eapp fn arg = EApp (fn, arg)
 let pvar name = PVar name
 let pconst c = PConst c
@@ -228,9 +228,10 @@ let prs_obj prs_expr =
 
 let prs_call_meth =
   let prs_rest = many (token "#" *> name) in
+  let fold_into_expr expr names = List.fold_left names ~f:ecallmeth ~init:expr in
   lift3
-    (fun name1 name2 names -> ecallmeth (name1 :: name2 :: names))
-    (name <* token "#")
+    (fun expr name names -> fold_into_expr (ecallmeth expr name) names)
+    (name >>| evar <* token "#")
     name
     prs_rest
 ;;

@@ -45,8 +45,8 @@ and error =
 
 and ctx = value ContextMap.t [@@deriving show { with_path = false }]
 
-let clear_value = function
-  | MethV inner -> inner
+let rec clear_value = function
+  | MethV inner -> clear_value inner
   | other -> other
 ;;
 
@@ -70,14 +70,14 @@ module Interpret (M : Fail_monad) = struct
   let find_in_ctx name ctx =
     match ContextMap.find name ctx with
     | exception Not_found -> fail @@ Not_bound name
-    | MethV _ -> fail @@ Not_bound name
-    | value -> return value
+    | value -> return (clear_value value)
   ;;
 
   let find_meth_in_ctx name ctx =
     match ContextMap.find name ctx with
     | exception Not_found -> fail @@ Not_bound name
-    | value -> return value
+    | MethV value -> return (clear_value value)
+    | _ -> fail @@ Not_bound name
   ;;
 
   let match_pat (p, value) =
@@ -171,31 +171,12 @@ module Interpret (M : Fail_monad) = struct
         (return ctx)
         obj
       >>= fun obj_value -> return (ObjV obj_value)
-    | ECallM names ->
-      let obj_name = List.hd names in
-      let names = List.tl names in
-      let* find_obj = find_in_ctx obj_name ctx in
-      let rec helper names value =
-        match names with
-        | [] -> fail (Not_bound (String.concat "#" names))
-        | [ m ] ->
-          (match value with
-           | ObjV env ->
-             let* lookup = find_meth_in_ctx m env in
-             (match lookup with
-              | MethV inner -> return inner
-              | _ -> fail (Not_bound (String.concat "#" names)))
-           | _ -> fail (Not_bound (String.concat "#" names)))
-        | h :: tl ->
-          (match value with
-           | ObjV env ->
-             let* lookup = find_meth_in_ctx h env in
-             (match lookup with
-              | MethV (ObjV inner) -> helper tl (ObjV inner)
-              | _ -> fail (Not_bound (String.concat "#" names)))
-           | _ -> fail (Not_bound (String.concat "#" names)))
-      in
-      helper names find_obj
+    | ECallM (expr, name) ->
+        eval ctx expr >>=
+        (function 
+        | ObjV ctx -> find_meth_in_ctx name ctx
+        | other -> return other
+        )
     | ELet (bindings, expr1) ->
       let* _, st = eval_binding ctx bindings in
       return st >>= fun s -> eval s expr1
