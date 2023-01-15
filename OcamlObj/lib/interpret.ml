@@ -69,8 +69,8 @@ module Interpret (M : Fail_monad) = struct
 
   let find_in_ctx name ctx =
     match ContextMap.find name ctx with
-    | exception Not_found | MethV _ -> fail @@ Not_bound name
-    | value -> return (value)
+    | (exception Not_found) | MethV _ -> fail @@ Not_bound name
+    | value -> return value
   ;;
 
   let find_meth_in_ctx name ctx =
@@ -173,12 +173,12 @@ module Interpret (M : Fail_monad) = struct
       >>= fun obj_value -> return (ObjV obj_value)
     | ECallM (expr, name) ->
       (match expr with
-      | EVar "self" -> find_meth_in_ctx name ctx
-      | expr -> 
-      (eval ctx expr
-      >>= (function
-      | ObjV ctx -> find_meth_in_ctx name ctx
-      | other -> return other)))
+       | EVar "self" -> find_meth_in_ctx name ctx
+       | expr ->
+         eval ctx expr
+         >>= (function
+         | ObjV ctx -> find_meth_in_ctx name ctx
+         | other -> return other))
     | ELet (bindings, expr1) ->
       let* _, st = eval_binding ctx bindings in
       return st >>= fun s -> eval s expr1
