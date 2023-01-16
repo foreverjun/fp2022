@@ -223,8 +223,13 @@ let prs_obj prs_expr =
          (lift2 efun (empty *> many name <* token "=") prs_expr)
   in
   let oval = trim @@ lift2 oval (token "val" *> name) (token "=" *> prs_expr) in
-  token "object" *> (lift2 (fun self_name exprl -> (self_name, exprl) ) ( option "" (token "(" *> name <* token ")") ) (many (choice [ oval; omethod ]))) <* token "end" >>| eobj
-;;
+  token "object"
+  *> lift2
+       (fun self_name exprl -> self_name, exprl)
+       (option "" (token "(" *> name <* token ")"))
+       (many (choice [ oval; omethod ]))
+  <* token "end"
+  >>| eobj;;
 
 let prs_call_meth =
   let prs_rest = many (token "#" *> name) in

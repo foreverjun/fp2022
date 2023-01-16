@@ -177,8 +177,8 @@ module Interpret (M : Fail_monad) = struct
     | ECallM (expr, name) ->
       eval ctx expr
       >>= (function
-       | ObjV ctx -> find_meth_in_ctx name ctx
-       | other -> return other)
+      | ObjV ctx -> find_meth_in_ctx name ctx
+      | other -> return other)
     | ELet (bindings, expr1) ->
       let* _, st = eval_binding ctx bindings in
       return st >>= fun s -> eval s expr1
