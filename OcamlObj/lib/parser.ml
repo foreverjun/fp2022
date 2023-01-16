@@ -229,7 +229,8 @@ let prs_obj prs_expr =
        (option "" (token "(" *> name <* token ")"))
        (many (choice [ oval; omethod ]))
   <* token "end"
-  >>| eobj;;
+  >>| eobj
+;;
 
 let prs_call_meth =
   let prs_rest = many (token "#" *> name) in
