@@ -123,11 +123,11 @@
   =-------------------------------------------=
 
   $ ./interprettest.exe <<-EOF 
-  >   let new_triplet one two three = object (this)
+  >   let new_triplet one two three = object (test_this)
   >      method get_one = one   
   >      method get_two = two
   >      method get_three = three
-  >      method get_sum = this#get_one + this#get_two + this#get_three
+  >      method get_sum = test_this#get_one + test_this#get_two + test_this#get_three
   >   end ;;
   >   let triplet = new_triplet 1 2 3 ;;
   >   let sum = triplet#get_sum ;;
