@@ -36,7 +36,7 @@ type expr =
   | EMatch of expr * (pattern * expr) list
       (** match a with | true -> "true" | false -> false*)
   | ECallM of expr * name (** test_obj#another_obj#some_method*)
-  | EObj of obj (** object method a = 1 method b = 2 end*)
+  | EObj of name * obj (** object (self) method a = 1 method b = 2 end*)
 [@@deriving eq, show { with_path = false }]
 
 and objexpr =

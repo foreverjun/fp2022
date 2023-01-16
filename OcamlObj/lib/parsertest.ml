@@ -43,17 +43,18 @@ let test = s#minus;;
           ( false
           , "s"
           , EObj
-              [ OVal ("v", EConst (CInt 10))
-              ; OMeth ("minus", EBinop (Sub, EVar "v", EConst (CInt 1)))
-              ; OMeth ("plus", EBinop (Add, EVar "v", EConst (CInt 1)))
-              ; OMeth
-                  ( "times"
-                  , ELet
-                      ( ( false
-                        , "helper"
-                        , EFun ("a", EBinop (Mul, EVar "a", EConst (CInt 2))) )
-                      , EVar "helper" ) )
-              ] )
+              ( ""
+              , [ OVal ("v", EConst (CInt 10))
+                ; OMeth ("minus", EBinop (Sub, EVar "v", EConst (CInt 1)))
+                ; OMeth ("plus", EBinop (Add, EVar "v", EConst (CInt 1)))
+                ; OMeth
+                    ( "times"
+                    , ELet
+                        ( ( false
+                          , "helper"
+                          , EFun ("a", EBinop (Mul, EVar "a", EConst (CInt 2))) )
+                        , EVar "helper" ) )
+                ] ) )
       ; DLet (false, "test", ECallM (EVar "s", "minus"))
       ]
 ;;
@@ -88,11 +89,12 @@ let pairsum = mypair#get_first + mypair#get_second
               , EFun
                   ( "second"
                   , EObj
-                      [ OVal ("first", EVar "first")
-                      ; OVal ("second", EVar "second")
-                      ; OMeth ("get_first", EVar "first")
-                      ; OMeth ("get_second", EVar "second")
-                      ] ) ) )
+                      ( ""
+                      , [ OVal ("first", EVar "first")
+                        ; OVal ("second", EVar "second")
+                        ; OMeth ("get_first", EVar "first")
+                        ; OMeth ("get_second", EVar "second")
+                        ] ) ) ) )
       ; DLet (false, "mypair", EApp (EApp (EVar "pair", EConst (CInt 1)), EConst (CInt 2)))
       ; DLet
           ( false
@@ -279,25 +281,29 @@ let a = inner_objects#f#g#h
           ( false
           , "inner_objects"
           , EObj
-              [ OVal ("i", EConst (CInt 10))
-              ; OMeth
-                  ( "g"
-                  , EObj
-                      [ OVal ("j", EConst (CInt 20))
-                      ; OMeth ("h", EBinop (Add, EVar "i", EVar "j"))
-                      ] )
-              ; OMeth
-                  ( "f"
-                  , EObj
-                      [ OVal ("k", EConst (CInt 30))
-                      ; OMeth
-                          ( "g"
-                          , EObj
-                              [ OVal ("l", EConst (CInt 40))
-                              ; OMeth ("h", EBinop (Add, EVar "k", EVar "l"))
-                              ] )
-                      ] )
-              ] )
+              ( ""
+              , [ OVal ("i", EConst (CInt 10))
+                ; OMeth
+                    ( "g"
+                    , EObj
+                        ( ""
+                        , [ OVal ("j", EConst (CInt 20))
+                          ; OMeth ("h", EBinop (Add, EVar "i", EVar "j"))
+                          ] ) )
+                ; OMeth
+                    ( "f"
+                    , EObj
+                        ( ""
+                        , [ OVal ("k", EConst (CInt 30))
+                          ; OMeth
+                              ( "g"
+                              , EObj
+                                  ( ""
+                                  , [ OVal ("l", EConst (CInt 40))
+                                    ; OMeth ("h", EBinop (Add, EVar "k", EVar "l"))
+                                    ] ) )
+                          ] ) )
+                ] ) )
       ; DLet (false, "a", ECallM (ECallM (ECallM (EVar "inner_objects", "f"), "g"), "h"))
       ]
 ;;

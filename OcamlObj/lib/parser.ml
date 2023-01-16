@@ -112,7 +112,7 @@ let elet binding expr = ELet (binding, expr)
 let efun name expr = EFun (name, expr)
 let efun args rhs = List.fold_right args ~f:efun ~init:rhs
 let ematch expr cases = EMatch (expr, cases)
-let eobj exprl = EObj exprl
+let eobj (self_name, exprl) = EObj (self_name, exprl)
 let ometh pattern expr = OMeth (pattern, expr)
 let oval pattern expr = OVal (pattern, expr)
 let ecallmeth expr name = ECallM (expr, name)
@@ -223,7 +223,7 @@ let prs_obj prs_expr =
          (lift2 efun (empty *> many name <* token "=") prs_expr)
   in
   let oval = trim @@ lift2 oval (token "val" *> name) (token "=" *> prs_expr) in
-  token "object" *> many (choice [ oval; omethod ]) <* token "end" >>| eobj
+  token "object" *> (lift2 (fun self_name exprl -> (self_name, exprl) ) ( option "" (token "(" *> name <* token ")") ) (many (choice [ oval; omethod ]))) <* token "end" >>| eobj
 ;;
 
 let prs_call_meth =

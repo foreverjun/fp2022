@@ -157,14 +157,17 @@ module Interpret (M : Fail_monad) = struct
          >>= fun case ->
          eval (List.fold_left (fun ctx (name, v) -> add_to_ctx name v ctx) ctx case) body
        | None -> fail Match_non_exhaustive)
-    | EObj obj ->
+    | EObj (self_name, obj) ->
       List.fold_left
         (fun ctx obj_expr ->
           let* ctx = ctx in
           match obj_expr with
           | OMeth (name, expr) ->
-            let* value = eval ctx expr in
-            return (add_to_ctx name (MethV value) ctx)
+            let ctx_with_self =
+              if self_name = "" then ctx else add_to_ctx self_name (ObjV ctx) ctx
+            in
+            let* value = eval ctx_with_self expr in
+            return (add_to_ctx name (MethV value) ctx_with_self)
           | OVal (name, expr) ->
             let* value = eval ctx expr in
             return (add_to_ctx name value ctx))
@@ -172,13 +175,10 @@ module Interpret (M : Fail_monad) = struct
         obj
       >>= fun obj_value -> return (ObjV obj_value)
     | ECallM (expr, name) ->
-      (match expr with
-       | EVar "self" -> find_meth_in_ctx name ctx
-       | expr ->
-         eval ctx expr
-         >>= (function
-         | ObjV ctx -> find_meth_in_ctx name ctx
-         | other -> return other))
+      eval ctx expr
+      >>= (function
+       | ObjV ctx -> find_meth_in_ctx name ctx
+       | other -> return other)
     | ELet (bindings, expr1) ->
       let* _, st = eval_binding ctx bindings in
       return st >>= fun s -> eval s expr1
