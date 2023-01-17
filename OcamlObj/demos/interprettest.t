@@ -156,3 +156,10 @@
   val triplet = <object>
   val sum = 6
   =-------------------------------------------=
+
+  $ ./interprettest.exe <<-EOF
+  >   let make f = object (self)
+  >      method fac = fun x -> f (self#fac) (0+x)
+  >   end ;;
+  >   let o  = make (fun self n -> n);;
+  >   let rez = o#fac 3 ;;
