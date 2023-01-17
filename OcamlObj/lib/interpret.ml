@@ -34,16 +34,16 @@ type value =
       (** wrapper, which is needed so that you can only call methods from the outside *)
 [@@deriving show { with_path = false }]
 
-and error =
+and ctx = value ContextMap.t [@@deriving show { with_path = false }]
+
+type error =
   | Wrong_type_binop of value * value
   | Wrong_type of expr
   | Match_non_exhaustive
   | Not_bound of name
   | Case_wrong_type of pattern * value
   | Div_0
-[@@deriving show]
-
-and ctx = value ContextMap.t [@@deriving show { with_path = false }]
+[@@deriving show { with_path = false }]
 
 let rec clear_value = function
   | MethV inner -> clear_value inner
