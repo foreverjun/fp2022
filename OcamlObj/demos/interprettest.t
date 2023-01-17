@@ -12,10 +12,17 @@
   val factorial = <fun>
   val f = 120
   =-------------------------------------------=
+  $ ./interprettest.exe <<-EOF
+  >  let o = object (self)
+  >    method fix f x = f (self#fix f) x
+  >    method factorial f n = if n <= 1 then n else f (n - 1) * n
+  >  end;;
+  >  let fac n = o#fix o#factorial n;;
+  >  let f = fac 5;;
 
-  $ ./interprettest.exe <<-EOF 
+  $ ./interprettest.exe <<-EOF
   >   let pair first1 second1 = object
-  >      val first = first1   
+  >      val first = first1
   >      val second = second1
   >      method get_first = first
   >      method get_second = second
@@ -31,20 +38,20 @@
   val sum = 3
   =-------------------------------------------=
 
-  $ ./interprettest.exe <<-EOF 
-  >   let inner_objects = object 
+  $ ./interprettest.exe <<-EOF
+  >   let inner_objects = object
   >      val i = 10
   >      method g = object
-  >      method h = i + 10  
+  >      method h = i + 10
   >      end
   >   method f = object
   >      val k = 30
   >      method g = object
   >         val l = 40
-  >         method h = k + l 
-  >         end 
-  >      end 
-  >   end 
+  >         method h = k + l
+  >         end
+  >      end
+  >   end
   >   ;;
   >   let a = inner_objects#f#g#h
   val inner_objects = <object>
@@ -59,7 +66,7 @@
   =-------------------------------------------=
 
   $ ./interprettest.exe <<-EOF
-  >   let rec fib n = 
+  >   let rec fib n =
   >   if n = 0 then 0
   >   else if n = 1 then 1
   >   else fib (n-1) + fib (n-2);;
@@ -98,11 +105,11 @@
   =-------------------------------------------=
 
   $ ./interprettest.exe <<-EOF
-  > let a = 
-  >    let b = 
-  >      let c = 
+  > let a =
+  >    let b =
+  >      let c =
   >        let d x = x * 3
-  >      in d 
+  >      in d
   >    in c
   >   in fun x -> b (x + 2) ;;
   > let t = a 5 ;;
@@ -110,9 +117,9 @@
   val t = 21
   =-------------------------------------------=
 
-  $ ./interprettest.exe <<-EOF 
+  $ ./interprettest.exe <<-EOF
   >   let new_triplet one two three = object
-  >      method get_one = one   
+  >      method get_one = one
   >      method get_two = two
   >      method get_three = three
   >      method get_sum = get_one + get_two + get_three
@@ -122,9 +129,9 @@
   (Not_bound "get_one")
   =-------------------------------------------=
 
-  $ ./interprettest.exe <<-EOF 
+  $ ./interprettest.exe <<-EOF
   >   let new_triplet one two three = object (test_this)
-  >      method get_one = one   
+  >      method get_one = one
   >      method get_two = two
   >      method get_three = three
   >      method get_sum = test_this#get_one + test_this#get_two + test_this#get_three
@@ -136,9 +143,9 @@
   val sum = 6
   =-------------------------------------------=
 
-  $ ./interprettest.exe <<-EOF 
+  $ ./interprettest.exe <<-EOF
   >   let new_triplet one two three = object (self)
-  >      method get_one = one   
+  >      method get_one = one
   >      method get_two = two
   >      method get_three = three
   >      method get_sum = self#get_one + self#get_two + self#get_three
